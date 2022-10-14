@@ -3,57 +3,20 @@ import express from 'express'
 import mongoose from 'mongoose'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import {routes} from './routes';
 
 const app = express()
 
 // config json response
 app.use(express.json())
-
+// use routes.ts file for routes
+app.use(routes)
 // Models
 const {User} = require('./models/User')
 
-// Open Route - Public Route
-app.get('/', (req, res) => {
-  res.status(200).json({msg: "Welcome"})
-})
 
-//Private Route 
-app.get('/user/:id', checkToken, async(req, res) => {
 
-  const id = req.params.id
 
-  //check if users exists
-  const user = await User.findById(id, '-password')
-
-  if(!user) {
-    return res.status(404).json({ msg: "User not found!"})
-  }
-
-  res.status(200).json({user})
-})
-
-function checkToken(req: any, res: any, next: any) {
-
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(" ")[1]
-
-  if(!token) {
-    return res.status(401).json({ msg: 'Access denied!'})
-  }
-
-  try {
-    
-    const secret = process.env.SECRET as string
-
-    jwt.verify(token, secret)
-
-    next()
-
-  } catch (error) {
-    console.log(error)
-    res.status(400).json({msg: 'Invalid Token'})
-  }
-}
 
 
 // Register User Route
