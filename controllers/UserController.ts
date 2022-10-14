@@ -108,17 +108,23 @@ module.exports = {
 
   async userIndex(req: any, res: any) {
 
-    const id = req.params.id
+    try {
+      const id = req.params.id
 
-    //check if users exists
-    const user = await User.findById(id, '-password')
+      //check if users exists
+      const user = await User.findById(id, '-password')
 
-    if(!user) {
+      if(!user) {
+        res.status(422).json({User: 'not found'})
+        return
+      }
+
+      res.status(200).json({user})
+    } catch (error) {
+      
+      console.log(error)
       return res.status(404).json({ msg: "User not found!"})
     }
-
-    res.status(200).json({user})
-
   },
 
   }
