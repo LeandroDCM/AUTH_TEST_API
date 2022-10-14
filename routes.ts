@@ -57,51 +57,6 @@ routes.post('/auth/register', UserController.register)
 
 // Login User Route
 
-routes.post('/auth/login', async (req: any, res: any) => {
-  const {email, password } = req.body;
-
-  //validation
-  if(!email) {
-    return res.status(422).json({msg: "Email is required!"})
-  }
-
-  if(!password) {
-    return res.status(422).json({msg: "Password is required!"})
-  }
-
-  //check if user exists
-  const user = await User.findOne({email: email})
-
-  if(!user) {
-    return res.status(404).json({msg: "User not found!"})
-  }
-
-  // check if password match
-  const checkPassword = await bcrypt.compare(password, user.password)
-
-  if(!checkPassword) {
-    return res.status(422).json({msg: "Invalid password!"})
-  }
-
-  try {
-
-    const secret = process.env.SECRET as string;
-
-    const token = jwt.sign(
-      {
-      id: user._id,
-      },
-      secret,)
-    
-    res.status(200).json({ msg: 'Successful authentication ', token})
-
-  } catch (error) {
-    console.log(error)
-
-    res.status(500).json({
-      msg: "Error ocurred in server, try again later!"
-    })
-  }
-})
+routes.post('/auth/login', UserController.login)
 
 export { routes };
