@@ -2,7 +2,6 @@ const {User} = require('../models/User')
 const bcrypt = require('bcrypt')
 import jwt from 'jsonwebtoken'
 
-
 module.exports = {
   async register(req: any, res: any) {
     const {name, email , password, confirmPassword } = req.body;
@@ -61,57 +60,66 @@ module.exports = {
   },
 
   async login(req: any, res: any) {
-  const {email, password } = req.body;
+    const {email, password } = req.body;
 
-  //validation
-  if(!email) {
-    return res.status(422).json({msg: "Email is required!"})
-  }
+    //validation
+    if(!email) {
+      return res.status(422).json({msg: "Email is required!"})
+    }
 
-  if(!password) {
-    return res.status(422).json({msg: "Password is required!"})
-  }
+    if(!password) {
+      return res.status(422).json({msg: "Password is required!"})
+    }
 
-  //check if user exists
-  const user = await User.findOne({email: email})
+    //check if user exists
+    const user = await User.findOne({email: email})
 
-  if(!user) {
-    return res.status(404).json({msg: "User not found!"})
-  }
+    if(!user) {
+      return res.status(404).json({msg: "User not found!"})
+    }
 
-  // check if password match
-  const checkPassword = await bcrypt.compare(password, user.password)
+    // check if password match
+    const checkPassword = await bcrypt.compare(password, user.password)
 
-  if(!checkPassword) {
-    return res.status(422).json({msg: "Invalid password!"})
-  }
+    if(!checkPassword) {
+      return res.status(422).json({msg: "Invalid password!"})
+    }
 
-  try {
+    try {
 
-    const secret = process.env.SECRET as string;
+      const secret = process.env.SECRET as string;
 
-    const token = jwt.sign(
-      {
-      id: user._id,
-      },
-      secret,)
-    
-    res.status(200).json({ msg: 'Successful authentication ', token})
+      const token = jwt.sign(
+        {
+        id: user._id,
+        },
+        secret,)
+      
+      res.status(200).json({ msg: 'Successful authentication ', token})
 
-  } catch (error) {
-    console.log(error)
+    } catch (error) {
+      console.log(error)
 
-    res.status(500).json({
-      msg: "Error ocurred in server, try again later!"
-    })
-  }
-
+      res.status(500).json({
+        msg: "Error ocurred in server, try again later!"
+      })
+    }
   },
 
+  async userIndex(req: any, res: any) {
 
+    const id = req.params.id
 
+    //check if users exists
+    const user = await User.findById(id, '-password')
 
+    if(!user) {
+      return res.status(404).json({ msg: "User not found!"})
+    }
 
+    res.status(200).json({user})
+
+  },
 
   }
   
