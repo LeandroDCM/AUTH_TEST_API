@@ -4,7 +4,7 @@ const routes = express.Router();
 
 //Controllers
 const UserController = require('./controllers/UserController');
-
+const PostController = require('./controllers/PostController')
 // Open Route - Public Route
 routes.get('/', (req: any, res: any) => {
   res.status(200).json({msg: "Welcome"})
@@ -20,4 +20,6 @@ routes.post('/auth/login', UserController.login)
 //function checkToken to check if token is authorized to access private route
 routes.get('/user/:id', checkToken, UserController.userIndex)
 
+
+routes.post('/user/:id/post', checkToken, PostController.post)
 export { routes };

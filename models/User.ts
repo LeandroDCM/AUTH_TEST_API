@@ -11,6 +11,7 @@ export const UserSchema = new mongoose.Schema({
   name: {type:String, required: true},
   email: {type:String, required: true},
   password: {type:String, required: true},
+  post: {type: mongoose.Schema.Types.ObjectId, ref: "post"}
 });
 
 const User = mongoose.model<User>('User', UserSchema);
