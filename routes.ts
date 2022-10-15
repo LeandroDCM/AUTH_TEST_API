@@ -20,6 +20,7 @@ routes.post('/auth/login', UserController.login)
 //function checkToken to check if token is authorized to access private route
 routes.get('/user/:id', checkToken, UserController.userIndex)
 
-
+// Make post route
 routes.post('/user/:id/post', checkToken, PostController.post)
+routes.patch('/user/:id/post/:postid', checkToken, PostController.updatePost)
 export { routes };
