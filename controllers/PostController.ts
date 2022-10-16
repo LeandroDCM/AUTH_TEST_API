@@ -8,6 +8,7 @@ module.exports = {
     const id = req.params.id
     const user = await User.findById(id, '-password')
     const newPost = new Post({
+      name: user.name,
       user: user.id,
       post
     })
@@ -43,7 +44,6 @@ module.exports = {
       if (userid.toString() !== thisPost.user.toString()) {
         return res.send('Access denied. Cannot delete other users post.')
       }
-
 
       const post = await Post.findByIdAndDelete(postid);
 
