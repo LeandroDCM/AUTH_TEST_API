@@ -53,5 +53,25 @@ module.exports = {
       res.status(500).send(error);
     }
   },
+
+  async index(req: any, res: any) {
+    try {
+      const posts = await Post.find({}, "name post -_id");
+      res.json(posts)
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  },
+
+  async userPosts(req: any, res: any) {
+    try {
+      const id = req.params.id;
+
+      const posts = await Post.find({user: id.toString()}, "name post -_id");
+      res.json(posts)
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  },
 }
 
