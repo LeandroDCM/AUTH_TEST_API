@@ -36,10 +36,10 @@ module.exports = {
     }
   
     //check if user exists
-    const userExists = await User.findOne({email: email})
+    const userExists = await User.findOne({$or: [{name: name}, {email: email}]})
   
     if(userExists) {
-      return res.status(422).json({msg: "Email already in use!"})
+      return res.status(422).json({msg: "Email or username already in use!"})
     }
   
     // create password
@@ -72,11 +72,11 @@ module.exports = {
   },
 
   async login(req: any, res: any) {
-    const {email, password } = req.body;
+    const {password, login} = req.body;
 
     //validation
-    if(!email) {
-      return res.status(422).json({msg: "Email is required!"})
+    if(!login) {
+      return res.status(422).json({msg: "Email or username is required!"})
     }
 
     if(!password) {
@@ -84,8 +84,8 @@ module.exports = {
     }
 
     //check if user exists
-    const user = await User.findOne({email: email})
-
+    const user = await User.findOne({$or:[{name: login}, {email: login}]})
+    
     if(!user) {
       return res.status(404).json({msg: "User not found!"})
     }
