@@ -142,4 +142,16 @@ module.exports = {
       return res.status(404).json({ msg: "User not found!" });
     }
   },
+
+  async reset(req: any, res: any) {
+    const { email } = req.params.email;
+
+    User.findOne({ email }, (error: any, user: any) => {
+      if (error || !user) {
+        return res.json({
+          msg: "Error: User with this email not found.",
+        });
+      }
+    });
+  },
 };

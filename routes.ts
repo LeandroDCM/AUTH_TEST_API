@@ -18,7 +18,10 @@ routes.post("/auth/register", UserController.register);
 routes.post("/auth/login", UserController.login);
 
 // Recover User Route
-routes.post("/auth/recover", EmailController.recover);
+routes.put("/auth/recover", EmailController.recover);
+
+// Reset Password
+routes.patch("/auth/reset/:token", UserController.reset);
 
 //Private Route
 //function checkToken to check if token is authorized to access private route

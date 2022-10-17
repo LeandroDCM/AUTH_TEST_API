@@ -2,6 +2,7 @@ const { User } = require("../models/User");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
+import jwt from "jsonwebtoken";
 
 let transport = nodemailer.createTransport({
   host: "smtp.mailtrap.io",
@@ -23,14 +24,17 @@ module.exports = {
         msg: "Email not found!",
       });
     }
-
+    const secret = process.env.SECRET as string;
     const username = userExists.name;
+
+    const token = jwt.sign({ _id: userExists._id }, secret);
 
     const mailOptions = {
       from: "07c7405dc0-27a88f@inbox.mailtrap.io", // Sender address
-      to: email.toString(), // List of recipients
-      subject: "Username and password recovery.", // Subject line
-      text: `Hello ${username} click this link to make a new password`, // Plain text body
+      to: email, // List of recipients
+      subject: "Account password reset link", // Subject line
+      text: `Hello ${username} click this link to reset your password`,
+      html: `<a href="http://localhost:3000/auth/reset/${token}">Recovery Link</a>`, // Plain text body
     };
 
     try {
@@ -38,8 +42,12 @@ module.exports = {
       res.json({
         msg: "Email sent with your information!",
       });
+      return userExists.updateOne({ resetLink: token });
     } catch (error) {
       console.log(error);
+      res.json({
+        msg: "Reset password link error",
+      });
     }
   },
 };
