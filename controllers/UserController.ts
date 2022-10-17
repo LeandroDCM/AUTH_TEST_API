@@ -18,7 +18,19 @@ module.exports = {
     if(!password) {
       return res.status(422).json({msg: "Password is required!"})
     }
-  
+    
+    if(!/(?=.*[A-Z])/.test(password)) {
+      return res.status(422).json({msg: "Password needs atleast one uppercase letter."})
+    }
+
+    if(!/(?=.*\d)/.test(password)) {
+      return res.status(422).json({msg: "Password needs atleast one number."})
+    }
+
+    if(!/(?=.*\W)/.test(password)) {
+      return res.status(422).json({msg: "Password needs atleast one special character."})
+    }
+
     if(password !== confirmPassword) {
       return res.status(422).json({msg: "Passwords don't match"})
     }

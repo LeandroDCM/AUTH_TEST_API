@@ -27,6 +27,4 @@ routes.post('/user/:id/post', checkToken, PostController.post)
 routes.patch('/user/:id/post/:postid', checkToken, PostController.update)
 routes.delete('/user/:id/post/:postid', checkToken, PostController.delete)
 
-
-
 export { routes };
