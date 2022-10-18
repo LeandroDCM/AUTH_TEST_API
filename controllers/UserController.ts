@@ -144,14 +144,55 @@ module.exports = {
   },
 
   async reset(req: any, res: any) {
-    const { email } = req.params.email;
+    const { newPassword, confirmNewPass } = req.body;
+    const { token } = req.params;
 
-    User.findOne({ email }, (error: any, user: any) => {
-      if (error || !user) {
-        return res.json({
-          msg: "Error: User with this email not found.",
-        });
-      }
-    });
+    if (!newPassword) {
+      return res.status(422).json({ msg: "Password is required!" });
+    }
+
+    if (!/(?=.*[A-Z])/.test(newPassword)) {
+      return res
+        .status(422)
+        .json({ msg: "Password needs atleast one uppercase letter." });
+    }
+
+    if (!/(?=.*\d)/.test(newPassword)) {
+      return res
+        .status(422)
+        .json({ msg: "Password needs atleast one number." });
+    }
+
+    if (!/(?=.*\W)/.test(newPassword)) {
+      return res
+        .status(422)
+        .json({ msg: "Password needs atleast one special character." });
+    }
+
+    if (newPassword !== confirmNewPass) {
+      return res.status(422).json({ msg: "Passwords don't match" });
+    }
+
+    try {
+      const secret = process.env.SECRET as string;
+
+      const userId = jwt.verify(token, secret);
+
+      const salt = await bcrypt.genSalt(12);
+      const passwordHash = await bcrypt.hash(newPassword, salt);
+
+      await User.findByIdAndUpdate(userId, {
+        password: passwordHash,
+      });
+
+      return res.json({
+        msg: "New password created successfully",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.json({
+        msg: "Invalid token",
+      });
+    }
   },
 };
