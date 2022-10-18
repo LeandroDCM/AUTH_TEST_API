@@ -71,6 +71,7 @@ module.exports = {
       });
     }
 
+    //checks if user is updating own post or someone elses
     if (userId.toString() === postUser.toString()) {
       await Post.findByIdAndUpdate(postid, newPost);
       return res.json(newPost);
