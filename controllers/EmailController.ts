@@ -27,6 +27,7 @@ module.exports = {
     const secret = process.env.SECRET as string;
     const username = userExists.name;
 
+    //making a token out of user id
     const token = jwt.sign({ _id: userExists._id }, secret);
 
     const mailOptions = {
