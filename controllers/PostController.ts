@@ -2,7 +2,7 @@ const { Post } = require("../models/Post");
 const { User } = require("../models/User");
 const mongoose = require("mongoose");
 
-module.exports = {
+class PostController {
   async post(req: any, res: any) {
     const { post } = req.body;
 
@@ -22,7 +22,7 @@ module.exports = {
     });
     await newPost.save();
     return res.json(newPost.post);
-  },
+  }
 
   async update(req: any, res: any) {
     const postid = req.params.postid;
@@ -81,7 +81,7 @@ module.exports = {
     } else {
       return res.json({ Error: "Cannot update another users post." });
     }
-  },
+  }
 
   async delete(req: any, res: any) {
     try {
@@ -100,7 +100,7 @@ module.exports = {
     } catch (error) {
       res.status(500).send(error);
     }
-  },
+  }
 
   async index(req: any, res: any) {
     try {
@@ -109,7 +109,7 @@ module.exports = {
     } catch (error) {
       res.status(500).send(error);
     }
-  },
+  }
 
   async userPosts(req: any, res: any) {
     try {
@@ -120,7 +120,7 @@ module.exports = {
     } catch (error) {
       res.status(500).send(error);
     }
-  },
-};
+  }
+}
 
-export {};
+export default new PostController();

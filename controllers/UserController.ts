@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import hasErrors from "../utils/paramsValidator";
 import validPassword from "../utils/validPassword";
 
-module.exports = {
+class UserController {
   async register(req: any, res: any) {
     const { name, email, password, confirmPassword } = req.body;
 
@@ -53,7 +53,7 @@ module.exports = {
         msg: "Error ocurred in server, try again later!",
       });
     }
-  },
+  }
 
   async login(req: any, res: any) {
     // username OR email = login
@@ -103,7 +103,7 @@ module.exports = {
         msg: "Error ocurred in server, try again later!",
       });
     }
-  },
+  }
 
   async userIndex(req: any, res: any) {
     try {
@@ -122,7 +122,7 @@ module.exports = {
       console.log(error);
       return res.status(404).json({ msg: "User not found!" });
     }
-  },
+  }
 
   async reset(req: any, res: any) {
     const { newPassword, confirmNewPass } = req.body;
@@ -175,5 +175,7 @@ module.exports = {
         msg: "Invalid token",
       });
     }
-  },
-};
+  }
+}
+
+export default new UserController();

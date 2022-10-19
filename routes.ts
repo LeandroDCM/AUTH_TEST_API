@@ -3,9 +3,9 @@ const express = require("express");
 const routes = express.Router();
 
 //Controllers
-const UserController = require("./controllers/UserController");
-const PostController = require("./controllers/PostController");
-const EmailController = require("./controllers/EmailController");
+import UserController from "./controllers/UserController";
+import PostController from "./controllers/PostController";
+import EmailController from "./controllers/EmailController";
 // Open Route - Public Route
 routes.get("/", (req: any, res: any) => {
   res.status(200).json({ msg: "Welcome" });

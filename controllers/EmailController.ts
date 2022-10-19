@@ -13,7 +13,7 @@ let transport = nodemailer.createTransport({
   },
 });
 
-module.exports = {
+class EmailController {
   async recover(req: any, res: any) {
     const { email } = req.body;
 
@@ -49,8 +49,8 @@ module.exports = {
         msg: "Reset password link error",
       });
     }
-  },
-};
+  }
+}
 
 //fix glitch with requiring User
-export {};
+export default new EmailController();
