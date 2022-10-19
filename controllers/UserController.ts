@@ -10,15 +10,22 @@ class UserController {
 
     const requestFields = ["name", "email", "password", "confirmPassword"];
     const errors = hasErrors(requestFields, req.body);
-    if (errors.length)
+    if (errors.length === 1) {
+      //if one error exist
       return res
-        .status(422)
-        .json({ msg: `Fields ${errors.join(",")} are requested!` });
+        .status(422) //join and return them
+        .json({ msg: `Field: ${errors[0]} is required` });
+    } else if (errors.length > 1) {
+      //if errors exist
+      return res
+        .status(422) //join and return them
+        .json({ msg: `Fields: ${errors.join(",")} are required!` });
+    }
 
     //validations
-    // const isPasswordInvalid = validPassword(password, confirmPassword);
-    // if (isPasswordInvalid)
-    //   return res.status(422).json({ msg: isPasswordInvalid });
+    const isPasswordInvalid = validPassword(password, confirmPassword);
+    if (isPasswordInvalid)
+      return res.status(422).json({ msg: isPasswordInvalid });
 
     //check if user exists
     const userExists = await User.findOne({
@@ -57,15 +64,19 @@ class UserController {
 
   async login(req: any, res: any) {
     // username OR email = login
-    const { password, login } = req.body;
+    const { login, password } = req.body;
 
     //validation
-    if (!login) {
-      return res.status(422).json({ msg: "Email or username is required!" });
-    }
-
-    if (!password) {
-      return res.status(422).json({ msg: "Password is required!" });
+    const requestFields = ["login", "password"];
+    const errors = hasErrors(requestFields, req.body);
+    if (errors.length === 1) {
+      return res.status(422).json({
+        msg: `Field: ${errors[0]} is required!`,
+      });
+    } else if (errors.length > 1) {
+      return res.status(422).json({
+        msg: `Fields: ${errors.join(",")} are required!`,
+      });
     }
 
     //check if user exists
