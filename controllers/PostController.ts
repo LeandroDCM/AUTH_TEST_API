@@ -6,6 +6,7 @@ class PostController {
   async post(req: any, res: any) {
     const { post } = req.body;
 
+    //gets email from checkToken (req.session)
     const email = req.session;
 
     const [user] = await User.find({ email }, "-password");

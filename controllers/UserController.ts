@@ -96,6 +96,7 @@ class UserController {
     }
 
     try {
+      //Generates token with user email
       const secret = process.env.SECRET as string;
 
       const token = jwt.sign(
@@ -106,6 +107,7 @@ class UserController {
         secret
       );
 
+      //Simulates sending token through header
       res.status(200).json({ msg: "Successful authentication ", token });
     } catch (error) {
       console.log(error);
