@@ -11,16 +11,14 @@ app.use(express.json());
 app.use(routes);
 
 // Credentials
-const dbUser = process.env.DB_USER;
-const dbPassword = process.env.DB_PASS;
-const port = 3000;
+const serverLink = process.env.MONGO_SERVER as string;
+const port = process.env.SERVER_PORT;
 
 mongoose
-  .connect(``)
-
+  .connect(serverLink)
   .then(() => {
     app.listen(port);
     console.log("Connected to database");
-    console.log("Server is running: " + port + "port");
+    console.log("Server is running: " + port + " port");
   })
   .catch((err) => console.log(err));
