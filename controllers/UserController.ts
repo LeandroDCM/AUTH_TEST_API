@@ -1,45 +1,24 @@
 const { User } = require("../models/User");
 const bcrypt = require("bcrypt");
 import jwt from "jsonwebtoken";
+import hasErrors from "../utils/paramsValidator";
+import validPassword from "../utils/validPassword";
 
 module.exports = {
   async register(req: any, res: any) {
     const { name, email, password, confirmPassword } = req.body;
 
+    const requestFields = ["name", "email", "password", "confirmPassword"];
+    const errors = hasErrors(requestFields, req.body);
+    if (errors.length)
+      return res
+        .status(422)
+        .json({ msg: `Fields ${errors.join(",")} are requested!` });
+
     //validations
-    if (!name) {
-      return res.status(422).json({ msg: "Name is required!" });
-    }
-
-    if (!email) {
-      return res.status(422).json({ msg: "Email is required!" });
-    }
-
-    if (!password) {
-      return res.status(422).json({ msg: "Password is required!" });
-    }
-
-    if (!/(?=.*[A-Z])/.test(password)) {
-      return res
-        .status(422)
-        .json({ msg: "Password needs atleast one uppercase letter." });
-    }
-
-    if (!/(?=.*\d)/.test(password)) {
-      return res
-        .status(422)
-        .json({ msg: "Password needs atleast one number." });
-    }
-
-    if (!/(?=.*\W)/.test(password)) {
-      return res
-        .status(422)
-        .json({ msg: "Password needs atleast one special character." });
-    }
-
-    if (password !== confirmPassword) {
-      return res.status(422).json({ msg: "Passwords don't match" });
-    }
+    // const isPasswordInvalid = validPassword(password, confirmPassword);
+    // if (isPasswordInvalid)
+    //   return res.status(422).json({ msg: isPasswordInvalid });
 
     //check if user exists
     const userExists = await User.findOne({
@@ -77,6 +56,7 @@ module.exports = {
   },
 
   async login(req: any, res: any) {
+    // username OR email = login
     const { password, login } = req.body;
 
     //validation
@@ -109,7 +89,8 @@ module.exports = {
 
       const token = jwt.sign(
         {
-          id: user._id,
+          email: user.email,
+          // change this for email
         },
         secret
       );

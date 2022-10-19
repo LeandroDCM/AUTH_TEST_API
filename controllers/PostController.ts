@@ -5,13 +5,16 @@ const mongoose = require("mongoose");
 module.exports = {
   async post(req: any, res: any) {
     const { post } = req.body;
-    const id = req.params.id;
-    const user = await User.findById(id, "-password");
+
+    const email = req.session;
+
+    const [user] = await User.find({ email }, "-password");
     if (!user) {
       return res.json({
         msg: "User not found",
       });
     }
+
     const newPost = new Post({
       name: user.name,
       user: user.id,

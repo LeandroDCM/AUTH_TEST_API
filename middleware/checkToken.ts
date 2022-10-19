@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-const express = require("express");
 
 function checkToken(req: any, res: any, next: any) {
   const authHeader = req.headers["authorization"];
@@ -12,7 +11,8 @@ function checkToken(req: any, res: any, next: any) {
   try {
     const secret = process.env.SECRET as string;
 
-    jwt.verify(token, secret);
+    const { email } = jwt.verify(token, secret) as any;
+    req.session = email;
 
     next();
   } catch (error) {

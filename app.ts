@@ -1,7 +1,7 @@
-require("dotenv").config();
 import express from "express";
 import mongoose from "mongoose";
 import { routes } from "./routes";
+import "dotenv/config";
 
 const app = express();
 
@@ -13,13 +13,14 @@ app.use(routes);
 // Credentials
 const dbUser = process.env.DB_USER;
 const dbPassword = process.env.DB_PASS;
+const port = 3000;
 
 mongoose
-  .connect(
-    `mongodb+srv://${dbUser}:${dbPassword}@authjwt.t9n0bba.mongodb.net/?retryWrites=true&w=majority`
-  )
+  .connect(``)
+
   .then(() => {
-    app.listen(3000);
+    app.listen(port);
     console.log("Connected to database");
+    console.log("Server is running: " + port + "port");
   })
   .catch((err) => console.log(err));
