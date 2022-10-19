@@ -27,56 +27,35 @@ class PostController {
 
   async update(req: any, res: any) {
     const postid = req.params.postid;
-    const id = req.params.id;
+    const email = req.session;
     const newPost = req.body;
-
-    //check for valid user id
-    const isValidUserId = mongoose.Types.ObjectId.isValid(id);
-    if (!isValidUserId)
-      return res.status(400).json({
-        msg: "Post id is not valid",
-      });
 
     //check for valid post id
     const isValidId = mongoose.Types.ObjectId.isValid(postid);
-    if (!isValidId)
+    if (!isValidId || !postid)
       return res.status(400).json({
         msg: "Post id is not valid",
       });
 
+    const [user] = await User.find({ email }, "-password");
+
     //find user and post
-    const user = await User.findById(id, "-password");
     const post = await Post.findById(postid);
 
     //check if user exists
-    if (user === null)
+    if (!user)
       return res.status(400).json({
-        msg: "User id does not exists",
+        msg: "User not found",
       });
 
-    //check if post exists
-    if (post === null)
+    //check if post is empty/exists
+    if (post === null || !post)
       return res.status(400).json({
-        msg: "Post id does not exists",
+        msg: "Empty post id or non existent.",
       });
-
-    const userId = user._id;
-    const postUser = post.user;
-
-    if (!user) {
-      return res.json({
-        msg: "User not found.",
-      });
-    }
-
-    if (!post) {
-      return res.json({
-        msg: "Post not found.",
-      });
-    }
 
     //checks if user is updating own post or someone elses
-    if (userId.toString() === postUser.toString()) {
+    if (user._id.toString() === post.user.toString()) {
       await Post.findByIdAndUpdate(postid, newPost);
       return res.json(newPost);
     } else {
