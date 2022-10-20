@@ -66,19 +66,34 @@ class PostController {
   async delete(req: any, res: any) {
     try {
       const postid = req.params.postid;
-      const userid = req.params.id;
+      const email = req.session;
 
+      const [user] = await User.find({ email }, "-password");
       const thisPost = await Post.findById(postid);
-      if (userid.toString() !== thisPost.user.toString()) {
-        return res.send("Access denied. Cannot delete other users post.");
+
+      //check if post exists
+      if (!thisPost)
+        res.status(404).json({
+          msg: "No post found",
+        });
+
+      //check if user is changing own post or someone elses
+      if (user._id.toString() !== thisPost.user.toString()) {
+        return res.json({
+          msg: "Access denied. Cannot delete other users post.",
+        });
       }
 
-      const post = await Post.findByIdAndDelete(postid);
-
-      if (!post) res.status(404).send("No post found");
-      res.status(200).send("Post deleted successfully");
+      //delete post if tests are passed
+      await Post.findByIdAndDelete(postid);
+      res.status(200).json({
+        msg: "Post deleted successfully",
+      });
     } catch (error) {
-      res.status(500).send(error);
+      console.log(error);
+      return res.status(500).json({
+        msg: "Error",
+      });
     }
   }
 

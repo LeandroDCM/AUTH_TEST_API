@@ -32,6 +32,6 @@ routes.get("/posts/", checkToken, PostController.index);
 routes.get("/posts/:id", checkToken, PostController.userPosts);
 routes.post("/user/post", checkToken, PostController.post);
 routes.patch("/user/:postid", checkToken, PostController.update);
-routes.delete("/user/:id/post/:postid", checkToken, PostController.delete);
+routes.delete("/user/:postid", checkToken, PostController.delete);
 
 export { routes };
