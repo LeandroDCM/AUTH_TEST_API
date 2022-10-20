@@ -1,5 +1,5 @@
-const { User } = require("../models/User");
-const bcrypt = require("bcrypt");
+const { User } = require("../models/User"); //error if import from
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import hasErrors from "../utils/paramsValidator";
 import validPassword from "../utils/validPassword";

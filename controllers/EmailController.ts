@@ -1,7 +1,6 @@
 const { User } = require("../models/User");
-const bcrypt = require("bcrypt");
-const nodemailer = require("nodemailer");
-require("dotenv").config();
+const nodemailer = require("nodemailer"); //error if import from
+import "dotenv/config";
 import jwt from "jsonwebtoken";
 
 let transport = nodemailer.createTransport({

@@ -1,6 +1,5 @@
-const { Post } = require("../models/Post");
+const { Post } = require("../models/Post"); //error if import from
 const { User } = require("../models/User");
-const mongoose = require("mongoose");
 import idIsValid from "../utils/postIdValidator";
 
 class PostController {
