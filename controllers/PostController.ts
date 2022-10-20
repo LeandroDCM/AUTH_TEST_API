@@ -91,7 +91,7 @@ class PostController {
       }
 
       //delete post if tests are passed
-      await Post.findByIdAndDelete(postid);
+      const deletePost = await Post.findByIdAndDelete(postid);
       res.status(200).json({
         msg: "Post deleted successfully",
       });
@@ -116,10 +116,22 @@ class PostController {
     try {
       const id = req.params.id;
 
+      const testId = idIsValid(id);
+      if (testId) {
+        return testId;
+      }
       const posts = await Post.find({ user: id.toString() }, "name post -_id");
+      if (!posts || posts.length === 0) {
+        return res.json({
+          msg: "Post not found or wrong post id.",
+        });
+      }
+
       res.json(posts);
     } catch (error) {
-      res.status(500).send(error);
+      res.status(500).json({
+        msg: "Error with user id",
+      });
     }
   }
 }

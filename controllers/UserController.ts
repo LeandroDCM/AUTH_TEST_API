@@ -120,12 +120,16 @@ class UserController {
 
   async userIndex(req: any, res: any) {
     try {
-      const id = req.params.id;
+      //gets email from checkToken (req.session)
+      const email = req.session;
+
+      const [user] = await User.find(
+        { email },
+        "-password -_id -resetLink -email"
+      );
 
       //check if users exists
-      const user = await User.findById(id, "-password");
-
-      if (!user) {
+      if (!user || user === null) {
         res.status(422).json({ User: "not found" });
         return;
       }
@@ -139,32 +143,16 @@ class UserController {
 
   async reset(req: any, res: any) {
     const { newPassword, confirmNewPass } = req.body;
+    //token came from recovery email
     const { token } = req.params;
 
-    if (!newPassword) {
+    //checking password regex
+    const isPasswordInvalid = validPassword(newPassword, confirmNewPass);
+    if (isPasswordInvalid)
+      return res.status(422).json({ msg: isPasswordInvalid });
+
+    if (!newPassword || !confirmNewPass) {
       return res.status(422).json({ msg: "Password is required!" });
-    }
-
-    if (!/(?=.*[A-Z])/.test(newPassword)) {
-      return res
-        .status(422)
-        .json({ msg: "Password needs atleast one uppercase letter." });
-    }
-
-    if (!/(?=.*\d)/.test(newPassword)) {
-      return res
-        .status(422)
-        .json({ msg: "Password needs atleast one number." });
-    }
-
-    if (!/(?=.*\W)/.test(newPassword)) {
-      return res
-        .status(422)
-        .json({ msg: "Password needs atleast one special character." });
-    }
-
-    if (newPassword !== confirmNewPass) {
-      return res.status(422).json({ msg: "Passwords don't match" });
     }
 
     try {
@@ -175,6 +163,7 @@ class UserController {
       const salt = await bcrypt.genSalt(12);
       const passwordHash = await bcrypt.hash(newPassword, salt);
 
+      //verify user from the token that he got from email
       await User.findByIdAndUpdate(userId, {
         password: passwordHash,
       });

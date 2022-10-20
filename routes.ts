@@ -25,7 +25,7 @@ routes.patch("/auth/reset/:token", UserController.reset);
 
 //Private Route
 //function checkToken to check if token is authorized to access private route
-routes.get("/user/:id", checkToken, UserController.userIndex);
+routes.get("/user/", checkToken, UserController.userIndex);
 
 // Make/update/delete post route
 routes.get("/posts/", checkToken, PostController.index);
