@@ -1,6 +1,7 @@
 const { Post } = require("../models/Post");
 const { User } = require("../models/User");
 const mongoose = require("mongoose");
+import idIsValid from "../utils/postIdValidator";
 
 class PostController {
   async post(req: any, res: any) {
@@ -30,16 +31,14 @@ class PostController {
     const email = req.session;
     const newPost = req.body;
 
-    //check for valid post id
-    const isValidId = mongoose.Types.ObjectId.isValid(postid);
-    if (!isValidId || !postid)
-      return res.status(400).json({
-        msg: "Post id is not valid",
-      });
-
-    const [user] = await User.find({ email }, "-password");
+    //check for valid post id and prevents crash
+    const isValid = idIsValid(postid);
+    if (isValid) {
+      return res.status(422).json({ msg: isValid });
+    }
 
     //find user and post
+    const [user] = await User.find({ email }, "-password");
     const post = await Post.findById(postid);
 
     //check if user exists
@@ -68,11 +67,18 @@ class PostController {
       const postid = req.params.postid;
       const email = req.session;
 
+      //check for valid post id and prevents crash
+      const isValid = idIsValid(postid);
+      if (isValid) {
+        return res.status(422).json({ msg: isValid });
+      }
+
+      //finds user and post
       const [user] = await User.find({ email }, "-password");
       const thisPost = await Post.findById(postid);
 
-      //check if post exists
-      if (!thisPost)
+      //check if post exists and prevents crash from null
+      if (!thisPost || thisPost === null)
         res.status(404).json({
           msg: "No post found",
         });
