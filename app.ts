@@ -13,7 +13,6 @@ app.use(routes);
 // Credentials
 const serverLink = process.env.MONGO_SERVER as string;
 const port = process.env.SERVER_PORT;
-
 mongoose
   .connect(serverLink)
   .then(() => {
