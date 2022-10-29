@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export interface Post extends mongoose.Document {
+export interface PostInterface extends mongoose.Document {
   post: string;
   name: string;
 }
@@ -11,6 +11,6 @@ export const PostSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
 });
 
-const Post = mongoose.model<Post>("Post", PostSchema);
+const Post = mongoose.model<PostInterface>("Post", PostSchema);
 
 export { Post };
