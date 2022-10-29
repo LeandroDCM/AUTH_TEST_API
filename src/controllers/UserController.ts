@@ -2,6 +2,7 @@ const { User } = require("../models/User"); //error if import from
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { ConnectionIsNotSetError } from "typeorm";
 import { IUserLogin } from "../interface/IUserLogin";
 import { IUserRegister } from "../interface/IUserRegister";
 import { IUserReset } from "../interface/IUserReset";
@@ -171,14 +172,25 @@ class UserController {
 
     try {
       const secret = process.env.SECRET as string;
+      //grab username from token passed through email
+      const userInformation = jwt.verify(token, secret) as {
+        username: string;
+        _id: string;
+      };
 
-      const userId = jwt.verify(token, secret);
+      //compares username grabbed from inside the email of the user
+      //with the username provided by the user in the time of password changing
+      if (username !== userInformation.username) {
+        return res.json({
+          Error: "User not found!",
+        });
+      }
 
       const salt = await bcrypt.genSalt(12);
       const passwordHash = await bcrypt.hash(newPassword, salt);
 
       //verify user from the token that he got from email
-      await User.findByIdAndUpdate(userId, {
+      await User.findByIdAndUpdate(userInformation._id, {
         password: passwordHash,
       });
 
