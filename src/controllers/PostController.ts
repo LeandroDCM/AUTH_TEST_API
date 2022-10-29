@@ -1,15 +1,22 @@
 const { Post } = require("../models/Post"); //error if import from
 const { User } = require("../models/User");
 import idIsValid from "../utils/postIdValidator";
+import { Request, Response } from "express";
+import { UserInterface } from "../models/User";
+import { PostInterface } from "../models/Post";
 
 class PostController {
-  async post(req: any, res: any) {
-    const { post } = req.body;
+  async post(req: Request, res: Response) {
+    const { post } = req.body as { post: string };
 
     //gets email from checkToken (req.session)
-    const email = req.session;
+    const userInformation = req.session;
 
-    const [user] = await User.find({ email }, "-password");
+    const [user] = (await User.find(
+      { username: userInformation.username },
+      "-password"
+    )) as [{ name: string; id: string; username: string }];
+
     if (!user) {
       return res.json({
         msg: "User not found",
@@ -20,7 +27,8 @@ class PostController {
       name: user.name,
       user: user.id,
       post,
-    });
+    }) as PostInterface;
+
     await newPost.save();
     return res.json(newPost.post);
   }

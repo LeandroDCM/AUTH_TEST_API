@@ -26,16 +26,18 @@ class EmailController {
   async recover(req: Request, res: Response) {
     const { email } = req.body as { email: string };
 
+    //check for user
     const user = (await User.findOne({
       email: email,
     })) as UserInterface;
 
+    //check for user
     if (!user) {
       return res.json({
         msg: "Email not found!",
       });
     }
-
+    //makes username a token to compare username at password reset link
     const secret = process.env.SECRET as string;
 
     const token = jwt.sign(
@@ -46,6 +48,7 @@ class EmailController {
       secret
     );
 
+    //Email data
     const data = {
       from: "Excited User <me@samples.mailgun.org>",
       to: `${email}`,

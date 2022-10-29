@@ -21,7 +21,7 @@ routes.post("/auth/login", UserController.login);
 routes.put("/auth/recover", EmailController.recover);
 
 // Reset Password
-routes.patch("/auth/reset/:token", UserController.reset);
+routes.patch("/auth/reset/:token", UserController.resetPassword);
 
 //Private Route
 //function checkToken to check if token is authorized to access private route

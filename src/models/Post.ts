@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 export interface PostInterface extends mongoose.Document {
   post: string;
   name: string;
+  user: string;
 }
 
 export const PostSchema = new mongoose.Schema({

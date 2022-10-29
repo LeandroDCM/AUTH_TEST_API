@@ -2,7 +2,6 @@ const { User } = require("../models/User"); //error if import from
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { ConnectionIsNotSetError } from "typeorm";
 import { IUserLogin } from "../interface/IUserLogin";
 import { IUserRegister } from "../interface/IUserRegister";
 import { IUserReset } from "../interface/IUserReset";
@@ -156,7 +155,7 @@ class UserController {
     }
   }
 
-  async reset(req: Request, res: Response) {
+  async resetPassword(req: Request, res: Response) {
     const { username, newPassword, confirmNewPass } = req.body as IUserReset;
     //token came from recovery email
     const { token } = req.params;
