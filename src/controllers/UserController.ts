@@ -1,14 +1,24 @@
 const { User } = require("../models/User"); //error if import from
 import bcrypt from "bcrypt";
+import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { IUserRegister } from "../interface/IUserRegister";
+import { UserInterface } from "../models/User";
 import hasErrors from "../utils/paramsValidator";
 import validPassword from "../utils/validPassword";
 
 class UserController {
-  async register(req: any, res: any) {
-    const { name, email, password, confirmPassword } = req.body;
+  async register(req: Request, res: Response) {
+    const { username, name, email, password, confirmPassword } =
+      req.body as IUserRegister;
 
-    const requestFields = ["name", "email", "password", "confirmPassword"];
+    const requestFields = [
+      "username",
+      "name",
+      "email",
+      "password",
+      "confirmPassword",
+    ];
     const errors = hasErrors(requestFields, req.body);
     if (errors.length === 1) {
       //if one error exist
@@ -28,9 +38,9 @@ class UserController {
       return res.status(422).json({ msg: isPasswordInvalid });
 
     //check if user exists
-    const userExists = await User.findOne({
-      $or: [{ name: name }, { email: email }],
-    });
+    const userExists = (await User.findOne({
+      $or: [{ username: username }, { email: email }],
+    })) as UserInterface;
 
     if (userExists) {
       return res.status(422).json({ msg: "Email or username already in use!" });
@@ -42,10 +52,11 @@ class UserController {
 
     //create user
     const user = new User({
+      username,
       name,
       email,
       password: passwordHash,
-    });
+    }) as UserInterface;
 
     try {
       await user.save();
