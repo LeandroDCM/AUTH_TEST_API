@@ -2,6 +2,7 @@ const { User } = require("../models/User"); //error if import from
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { IUserLogin } from "../interface/IUserLogin";
 import { IUserRegister } from "../interface/IUserRegister";
 import { UserInterface } from "../models/User";
 import hasErrors from "../utils/paramsValidator";
@@ -73,9 +74,9 @@ class UserController {
     }
   }
 
-  async login(req: any, res: any) {
+  async login(req: Request, res: Response) {
     // username OR email = login
-    const { login, password } = req.body;
+    const { login, password } = req.body as IUserLogin;
 
     //validation
     const requestFields = ["login", "password"];
@@ -91,9 +92,9 @@ class UserController {
     }
 
     //check if user exists
-    const user = await User.findOne({
-      $or: [{ name: login }, { email: login }],
-    });
+    const user = (await User.findOne({
+      $or: [{ username: login }, { email: login }],
+    })) as UserInterface;
 
     if (!user) {
       return res.status(404).json({ msg: "User not found!" });
@@ -113,6 +114,8 @@ class UserController {
       const token = jwt.sign(
         {
           email: user.email,
+          username: user.username,
+          role_id: user.role_id,
           // change this for email
         },
         secret
