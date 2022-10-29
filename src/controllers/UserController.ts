@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { IUserLogin } from "../interface/IUserLogin";
 import { IUserRegister } from "../interface/IUserRegister";
+import { IUserReset } from "../interface/IUserReset";
 import { UserInterface } from "../models/User";
 import hasErrors from "../utils/paramsValidator";
 import validPassword from "../utils/validPassword";
@@ -132,15 +133,14 @@ class UserController {
     }
   }
 
-  async userIndex(req: any, res: any) {
+  async userIndex(req: Request, res: Response) {
     try {
       //gets email from checkToken (req.session)
-      const email = req.session;
-
-      const [user] = await User.find(
-        { email },
-        "-password -_id -resetLink -email"
-      );
+      const userInformation = req.session;
+      const user = (await User.find(
+        { username: userInformation.username },
+        "-password -_id -resetLink -email -role_id"
+      )) as UserInterface;
 
       //check if users exists
       if (!user || user === null) {
@@ -155,8 +155,8 @@ class UserController {
     }
   }
 
-  async reset(req: any, res: any) {
-    const { newPassword, confirmNewPass } = req.body;
+  async reset(req: Request, res: Response) {
+    const { username, newPassword, confirmNewPass } = req.body as IUserReset;
     //token came from recovery email
     const { token } = req.params;
 
