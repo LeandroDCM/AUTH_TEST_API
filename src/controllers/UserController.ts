@@ -9,6 +9,15 @@ import { UserInterface } from "../models/User";
 import hasErrors from "../utils/paramsValidator";
 import USER_ROLES from "../utils/USER_ROLES";
 import validPassword from "../utils/validPassword";
+import mailgun from "mailgun-js";
+import "dotenv/config";
+
+//setting up mailgun
+const DOMAIN = process.env.EMAIL_DOMAIN as string;
+const mg = mailgun({
+  apiKey: process.env.EMAIL_API_KEY as string,
+  domain: DOMAIN,
+});
 
 class UserController {
   async register(req: Request, res: Response) {
@@ -53,19 +62,38 @@ class UserController {
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    //create user
-    const user = new User({
-      username,
-      name,
-      email,
-      password: passwordHash,
-    }) as UserInterface;
-
     try {
+      //makes username a token to compare username at password reset link
+      const secret = process.env.SECRET as string;
+
+      const token = jwt.sign({ username: username }, secret);
+
+      //Email data
+      const data = {
+        from: "noreply@email.com",
+        to: `${email}`,
+        subject: "Activate Account",
+        text: `<a href="${process.env.CLIENT_URL}/auth/activate/${token}">Activation Link</a>`,
+        html: `<a href="${process.env.CLIENT_URL}/auth/activate/${token}">Activation Link</a>`,
+      };
+
+      //send email
+      mg.messages().send(data, function (error, body) {
+        console.log(body);
+      });
+
+      //create user
+      const user = new User({
+        username,
+        name,
+        email,
+        password: passwordHash,
+      }) as UserInterface;
+
       await user.save();
 
       res.status(201).json({
-        msg: "User created successfully",
+        msg: "User created successfully, Please confirm your Email to be able to make Posts",
       });
     } catch (error) {
       console.log(error);
@@ -235,6 +263,39 @@ class UserController {
       return res
         .status(404)
         .json({ msg: "User not found or no permission to delete" });
+    }
+  }
+
+  async activate(req: Request, res: Response) {
+    try {
+      const token = req.params.token;
+      //acts as a fake activate button
+      const { activateButton } = req.body as { activateButton: string };
+
+      //decoding jwt token
+      const secret = process.env.SECRET as string;
+      const userInformation = jwt.verify(token, secret) as any;
+
+      //find user
+      const user = (await User.findOne({
+        username: userInformation.username,
+      })) as UserInterface;
+
+      //checks if he clicks the fake button
+      if (activateButton === "ACTIVATE") {
+        await User.findByIdAndUpdate(user._id, {
+          is_activated: true,
+        });
+        return res.json({
+          msg: "User account activated!",
+        });
+      }
+      throw new Error("Something went wrong!");
+    } catch (error) {
+      console.log(error);
+      return res.json({
+        msg: "Something went wrong!",
+      });
     }
   }
 }

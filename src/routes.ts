@@ -23,6 +23,9 @@ routes.put("/auth/recover", EmailController.recover);
 // Reset Password
 routes.patch("/auth/reset/:token", UserController.resetPassword);
 
+//Activate Account
+routes.post("/auth/activate/:token", UserController.activate);
+
 //Private Route
 //function checkToken to check if token is authorized to access private route
 routes.get("/user/", checkToken, UserController.userIndex);
