@@ -33,10 +33,10 @@ class PostController {
     return res.json(newPost.post);
   }
 
-  async update(req: any, res: any) {
+  async update(req: Request, res: Response) {
     const postid = req.params.postid;
-    const email = req.session;
-    const newPost = req.body;
+    const userInformation = req.session;
+    const newPost = req.body as { newPost: string };
 
     //check for valid post id and prevents crash
     const isValid = idIsValid(postid);
@@ -45,8 +45,13 @@ class PostController {
     }
 
     //find user and post
-    const [user] = await User.find({ email }, "-password");
-    const post = await Post.findById(postid);
+    const [user] = (await User.find(
+      {
+        username: userInformation.username,
+      },
+      "-password"
+    )) as [{ name: string; id: string; username: string; _id: string }];
+    const post = (await Post.findById(postid)) as PostInterface;
 
     //check if user exists
     if (!user)
@@ -69,10 +74,10 @@ class PostController {
     }
   }
 
-  async delete(req: any, res: any) {
+  async delete(req: Request, res: Response) {
     try {
       const postid = req.params.postid;
-      const email = req.session;
+      const userInformation = req.session;
 
       //check for valid post id and prevents crash
       const isValid = idIsValid(postid);
@@ -81,8 +86,11 @@ class PostController {
       }
 
       //finds user and post
-      const [user] = await User.find({ email }, "-password");
-      const thisPost = await Post.findById(postid);
+      const [user] = (await User.find(
+        { username: userInformation.username },
+        "-password"
+      )) as [{ name: string; id: string; username: string; _id: string }];
+      const thisPost = (await Post.findById(postid)) as PostInterface;
 
       //check if post exists and prevents crash from null
       if (!thisPost || thisPost === null)
@@ -110,16 +118,16 @@ class PostController {
     }
   }
 
-  async index(req: any, res: any) {
+  async index(req: Request, res: Response) {
     try {
-      const posts = await Post.find({}, "name post -_id");
+      const posts = (await Post.find({}, "name post -_id")) as PostInterface;
       res.json(posts);
     } catch (error) {
       res.status(500).send(error);
     }
   }
 
-  async userPosts(req: any, res: any) {
+  async userPosts(req: Request, res: Response) {
     try {
       const id = req.params.id;
 
@@ -127,10 +135,14 @@ class PostController {
       if (testId) {
         return testId;
       }
-      const posts = await Post.find({ user: id.toString() }, "name post -_id");
+      const posts = (await Post.find(
+        { user: id.toString() },
+        "name post -_id"
+      )) as PostInterface;
+
       if (!posts || posts.length === 0) {
         return res.json({
-          msg: "Post not found or wrong post id.",
+          msg: "Post not found or wrong user id.",
         });
       }
 

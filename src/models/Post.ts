@@ -4,6 +4,7 @@ export interface PostInterface extends mongoose.Document {
   post: string;
   name: string;
   user: string;
+  length: number;
 }
 
 export const PostSchema = new mongoose.Schema({
