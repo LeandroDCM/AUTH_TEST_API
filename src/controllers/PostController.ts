@@ -4,6 +4,7 @@ import idIsValid from "../utils/postIdValidator";
 import { Request, Response } from "express";
 import { UserInterface } from "../models/User";
 import { PostInterface } from "../models/Post";
+import USER_ROLES from "../utils/USER_ROLES";
 
 class PostController {
   async post(req: Request, res: Response) {
@@ -85,31 +86,65 @@ class PostController {
         return res.status(422).json({ msg: isValid });
       }
 
-      //finds user and post
+      //finds user
       const [user] = (await User.find(
         { username: userInformation.username },
         "-password"
-      )) as [{ name: string; id: string; username: string; _id: string }];
+      )) as [
+        {
+          role_id: number;
+          name: string;
+          id: string;
+          username: string;
+          _id: string;
+        }
+      ];
+      //finds the post
       const thisPost = (await Post.findById(postid)) as PostInterface;
-
+      //finds the poster
+      const thisPostPoster = await User.findById(
+        thisPost.user,
+        "-password -name -email"
+      );
       //check if post exists and prevents crash from null
       if (!thisPost || thisPost === null)
         res.status(404).json({
           msg: "No post found",
         });
 
-      //check if user is changing own post or someone elses
-      if (user._id.toString() !== thisPost.user.toString()) {
-        return res.json({
-          msg: "Access denied. Cannot delete other users post.",
+      //if user role_id === 3 "ADMIN" delete anything he wants
+      if (user.role_id === USER_ROLES.ADM) {
+        //delete post if tests are passed
+        await Post.findByIdAndDelete(postid);
+        return res.status(200).json({
+          msg: "Post deleted successfully",
         });
       }
 
-      //delete post if tests are passed
-      const deletePost = await Post.findByIdAndDelete(postid);
-      res.status(200).json({
-        msg: "Post deleted successfully",
-      });
+      //if user role_id === 2 "MODERATOR" delete anything but ADMIN posts
+      if (
+        user.role_id === USER_ROLES.MOD &&
+        thisPostPoster.role_id !== USER_ROLES.ADM
+      ) {
+        //delete post if tests are passed
+        await Post.findByIdAndDelete(postid);
+        return res.status(200).json({
+          msg: "Post deleted successfully",
+        });
+      }
+
+      //if user role_id === 1 "USER" and this post was made by the same user
+      if (user.role_id === USER_ROLES.USER && user._id === thisPostPoster._id) {
+        //delete post if tests are passed
+        await Post.findByIdAndDelete(postid);
+        return res.status(200).json({
+          msg: "Post deleted successfully",
+        });
+      }
+      //check if user is trying to do something he does not have permission to do
+      throw new Error(
+        "Access denied. You do not have permission to delete this post"
+      );
     } catch (error) {
       console.log(error);
       return res.status(500).json({
