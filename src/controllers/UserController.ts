@@ -7,6 +7,7 @@ import { IUserRegister } from "../interface/IUserRegister";
 import { IUserReset } from "../interface/IUserReset";
 import { UserInterface } from "../models/User";
 import hasErrors from "../utils/paramsValidator";
+import USER_ROLES from "../utils/USER_ROLES";
 import validPassword from "../utils/validPassword";
 
 class UserController {
@@ -201,6 +202,39 @@ class UserController {
       return res.json({
         msg: "Invalid token",
       });
+    }
+  }
+
+  async deleteUser(req: Request, res: Response) {
+    try {
+      const userId = req.params.id;
+      const userInformation = req.session;
+      //find logged user
+      const [loggedUser] = (await User.find(
+        {
+          username: userInformation.username,
+        },
+        "-password -email"
+      )) as [{ role_id: number; username: string }];
+
+      //find user to be deleted
+      const user = (await User.findById(userId)) as UserInterface;
+
+      //if loggedUser role_id === 3 "ADMIN" delete anything he wants
+      if (loggedUser.role_id === USER_ROLES.ADM) {
+        //delete post if tests are passed
+        await user.deleteOne({ username: user.username });
+        return res.status(200).json({
+          msg: "User deleted successfully",
+        });
+      } else {
+        throw new Error("Error!");
+      }
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(404)
+        .json({ msg: "User not found or no permission to delete" });
     }
   }
 }

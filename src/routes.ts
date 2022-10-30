@@ -30,8 +30,9 @@ routes.get("/user/", checkToken, UserController.userIndex);
 // Make/update/delete post route
 routes.get("/posts/", checkToken, PostController.index);
 routes.get("/posts/:id", checkToken, PostController.userPosts);
-routes.post("/user/post", checkToken, PostController.post);
-routes.patch("/user/:postid", checkToken, PostController.update);
-routes.delete("/user/:postid", checkToken, PostController.delete);
+routes.post("/user/post", checkToken, PostController.makePost);
+routes.patch("/user/:postid", checkToken, PostController.updatePost);
+routes.delete("/user/:postid", checkToken, PostController.deletePost);
+routes.delete("/user/delete/:id", checkToken, UserController.deleteUser);
 
 export { routes };

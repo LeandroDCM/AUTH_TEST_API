@@ -7,7 +7,7 @@ import { PostInterface } from "../models/Post";
 import USER_ROLES from "../utils/USER_ROLES";
 
 class PostController {
-  async post(req: Request, res: Response) {
+  async makePost(req: Request, res: Response) {
     const { post } = req.body as { post: string };
 
     //gets email from checkToken (req.session)
@@ -34,7 +34,7 @@ class PostController {
     return res.json(newPost.post);
   }
 
-  async update(req: Request, res: Response) {
+  async updatePost(req: Request, res: Response) {
     const postid = req.params.postid;
     const userInformation = req.session;
     const newPost = req.body as { newPost: string };
@@ -75,7 +75,7 @@ class PostController {
     }
   }
 
-  async delete(req: Request, res: Response) {
+  async deletePost(req: Request, res: Response) {
     try {
       const postid = req.params.postid;
       const userInformation = req.session;
