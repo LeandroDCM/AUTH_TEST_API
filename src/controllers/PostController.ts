@@ -10,13 +10,27 @@ class PostController {
   async makePost(req: Request, res: Response) {
     const { post } = req.body as { post: string };
 
+    if (!post) {
+      return res.json({
+        msg: "Post can't be empty",
+      });
+    }
+
     //gets email from checkToken (req.session)
     const userInformation = req.session;
 
     const [user] = (await User.find(
       { username: userInformation.username },
       "-password"
-    )) as [{ name: string; id: string; username: string }];
+    )) as [
+      {
+        name: string;
+        id: string;
+        username: string;
+        is_activated: boolean;
+        role_id: number;
+      }
+    ];
 
     if (!user) {
       return res.json({
@@ -24,14 +38,26 @@ class PostController {
       });
     }
 
-    const newPost = new Post({
-      name: user.name,
-      user: user.id,
-      post,
-    }) as PostInterface;
+    try {
+      //if the user is admin or moderator he can post without being activated
+      if (user.is_activated || user.role_id > USER_ROLES.USER) {
+        const newPost = new Post({
+          name: user.name,
+          user: user.id,
+          post,
+        }) as PostInterface;
 
-    await newPost.save();
-    return res.json(newPost.post);
+        await newPost.save();
+        return res.json(newPost.post);
+      } else {
+        throw new Error("Account not activated");
+      }
+    } catch (error) {
+      console.log(error);
+      return res.json({
+        msg: "Account not activated, please check your email.",
+      });
+    }
   }
 
   async updatePost(req: Request, res: Response) {
