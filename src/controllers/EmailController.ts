@@ -1,5 +1,4 @@
 const { User } = require("../models/User");
-const nodemailer = require("nodemailer"); //error if import from
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 import mailgun from "mailgun-js";
@@ -12,15 +11,6 @@ const mg = mailgun({
   apiKey: process.env.EMAIL_API_KEY as string,
   domain: DOMAIN,
 });
-
-/* let transport = nodemailer.createTransport({
-  host: "smtp.mailtrap.io",
-  port: 2525,
-  auth: {
-    user: process.env.EMAIL_USERNAME,
-    pass: process.env.EMAIL_PASS,
-  },
-}); */
 
 class EmailController {
   async recover(req: Request, res: Response) {
