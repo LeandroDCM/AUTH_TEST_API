@@ -2,7 +2,6 @@ const { Post } = require("../models/Post"); //error if import from
 const { User } = require("../models/User");
 import idIsValid from "../utils/postIdValidator";
 import { Request, Response } from "express";
-import { UserInterface } from "../models/User";
 import { PostInterface } from "../models/Post";
 import USER_ROLES from "../utils/USER_ROLES";
 
@@ -125,13 +124,16 @@ class PostController {
           _id: string;
         }
       ];
+
       //finds the post
       const thisPost = (await Post.findById(postid)) as PostInterface;
+
       //finds the poster
       const thisPostPoster = await User.findById(
         thisPost.user,
         "-password -name -email"
       );
+
       //check if post exists and prevents crash from null
       if (!thisPost || thisPost === null)
         res.status(404).json({
