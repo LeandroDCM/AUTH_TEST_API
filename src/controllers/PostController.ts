@@ -160,7 +160,10 @@ class PostController {
       }
 
       //if user role_id === 1 "USER" and this post was made by the same user
-      if (user.role_id === USER_ROLES.USER && user._id === thisPostPoster._id) {
+      if (
+        user.role_id === USER_ROLES.USER &&
+        user._id.toString() === thisPostPoster._id.toString()
+      ) {
         //delete post if tests are passed
         await Post.findByIdAndDelete(postid);
         return res.status(200).json({
