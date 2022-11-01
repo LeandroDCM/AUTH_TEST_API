@@ -3,9 +3,9 @@ const express = require("express");
 const routes = express.Router();
 
 //Controllers
-const UserController = require("./controllers/UserController");
-const PostController = require("./controllers/PostController");
-const EmailController = require("./controllers/EmailController");
+import UserController from "./controllers/UserController";
+import PostController from "./controllers/PostController";
+import EmailController from "./controllers/EmailController";
 // Open Route - Public Route
 routes.get("/", (req: any, res: any) => {
   res.status(200).json({ msg: "Welcome" });
@@ -21,17 +21,21 @@ routes.post("/auth/login", UserController.login);
 routes.put("/auth/recover", EmailController.recover);
 
 // Reset Password
-routes.patch("/auth/reset/:token", UserController.reset);
+routes.patch("/auth/reset/:token", UserController.resetPassword);
+
+//Activate Account
+routes.post("/auth/activate/:token", UserController.activate);
 
 //Private Route
 //function checkToken to check if token is authorized to access private route
-routes.get("/user/:id", checkToken, UserController.userIndex);
+routes.get("/user/", checkToken, UserController.userIndex);
 
 // Make/update/delete post route
 routes.get("/posts/", checkToken, PostController.index);
 routes.get("/posts/:id", checkToken, PostController.userPosts);
-routes.post("/user/:id/post", checkToken, PostController.post);
-routes.patch("/user/:id/post/:postid", checkToken, PostController.update);
-routes.delete("/user/:id/post/:postid", checkToken, PostController.delete);
+routes.post("/user/post", checkToken, PostController.makePost);
+routes.patch("/user/:postid", checkToken, PostController.updatePost);
+routes.delete("/user/:postid", checkToken, PostController.deletePost);
+routes.delete("/user/delete/:id", checkToken, UserController.deleteUser);
 
 export { routes };
