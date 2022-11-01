@@ -1,3 +1,4 @@
+import { UserInterface } from "./../models/User";
 const { Post } = require("../models/Post"); //error if import from
 const { User } = require("../models/User");
 import idIsValid from "../utils/postIdValidator";
@@ -18,18 +19,10 @@ class PostController {
     //gets email from checkToken (req.session)
     const userInformation = req.session;
 
-    const [user] = (await User.find(
+    const user = (await User.findOne(
       { username: userInformation.username },
       "-password"
-    )) as [
-      {
-        name: string;
-        id: string;
-        username: string;
-        is_activated: boolean;
-        role_id: number;
-      }
-    ];
+    )) as UserInterface;
 
     if (!user) {
       return res.json({
@@ -71,12 +64,13 @@ class PostController {
     }
 
     //find user and post
-    const [user] = (await User.find(
+    const user = (await User.findOne(
       {
         username: userInformation.username,
       },
       "-password"
-    )) as [{ name: string; id: string; username: string; _id: string }];
+    )) as UserInterface;
+
     const post = (await Post.findById(postid)) as PostInterface;
 
     //check if user exists
@@ -112,18 +106,10 @@ class PostController {
       }
 
       //finds user
-      const [user] = (await User.find(
+      const user = (await User.findOne(
         { username: userInformation.username },
         "-password"
-      )) as [
-        {
-          role_id: number;
-          name: string;
-          id: string;
-          username: string;
-          _id: string;
-        }
-      ];
+      )) as UserInterface;
 
       //finds the post
       const thisPost = (await Post.findById(postid)) as PostInterface;
