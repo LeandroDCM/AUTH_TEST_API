@@ -4,4 +4,5 @@ export interface IPost {
   user: string;
   length: number;
   destroy: any;
+  save: any;
 }

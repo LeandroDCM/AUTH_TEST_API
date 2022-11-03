@@ -3,7 +3,6 @@ import { Post } from "../models/Post";
 import { User } from "../models/User";
 import idIsValid from "../utils/postIdValidator";
 import { Request, Response } from "express";
-import { PostInterface } from "../models/Post";
 import USER_ROLES from "../utils/USER_ROLES";
 import { IPost } from "../interface/IPost";
 
@@ -38,12 +37,14 @@ class PostController {
           name: user.name,
           user: user.id,
           post,
-        }) as PostInterface;
+        }) as IPost;
 
         await newPost.save();
         return res.json(newPost.post);
       } else {
-        throw new Error("Account not activated");
+        return res.json({
+          msg: "Account not activated, please check your email.",
+        });
       }
     } catch (error) {
       console.log(error);
@@ -54,7 +55,7 @@ class PostController {
   }
 
   async updatePost(req: Request, res: Response) {
-    const postid = req.params.postid;
+    const postid = req.params.postid as string;
     const userInformation = req.session;
     const newPost = req.body as { newPost: string };
 
@@ -72,7 +73,7 @@ class PostController {
       "-password"
     )) as IUser;
 
-    const post = (await Post.findById(postid)) as PostInterface;
+    const post = (await Post.findById(postid)) as IPost;
 
     //check if user exists
     if (!user)
@@ -113,7 +114,7 @@ class PostController {
       )) as IUser;
 
       //finds the post
-      const thisPost = (await Post.findById(postid)) as PostInterface;
+      const thisPost = (await Post.findById(postid)) as IPost;
 
       //finds the poster
       const thisPostPoster = (await User.findById(
@@ -173,7 +174,7 @@ class PostController {
 
   async index(req: Request, res: Response) {
     try {
-      const posts = (await Post.findOne({}, "name post -_id")) as PostInterface;
+      const posts = (await Post.findOne({}, "name post -_id")) as IPost;
       res.json(posts);
     } catch (error) {
       res.status(500).send(error);
