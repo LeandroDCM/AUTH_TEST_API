@@ -60,9 +60,10 @@ class PostController {
     const newPost = req.body as { newPost: string };
 
     //check for valid post id and prevents crash
-    const isValid = idIsValid(postid);
-    if (isValid) {
-      return res.status(422).json({ msg: isValid });
+    if (idIsValid(postid)) {
+      return res.status(500).json({
+        msg: "Post id is not valid",
+      });
     }
 
     //find user and post
@@ -82,13 +83,13 @@ class PostController {
       });
 
     //check if post is empty/exists
-    if (post === null || !post)
+    if (!post)
       return res.status(400).json({
         msg: "Empty post id or non existent.",
       });
 
     //checks if user is updating own post or someone elses
-    if (user._id.toString() === post.user.toString()) {
+    if (user._id.valueOf() === post.user.valueOf()) {
       await Post.findByIdAndUpdate(postid, newPost);
       return res.json(newPost);
     } else {
@@ -98,13 +99,14 @@ class PostController {
 
   async deletePost(req: Request, res: Response) {
     try {
-      const postid = req.params.postid;
+      const postid = req.params.postid as string;
       const userInformation = req.session;
 
       //check for valid post id and prevents crash
-      const isValid = idIsValid(postid);
-      if (isValid) {
-        return res.status(422).json({ msg: isValid });
+      if (idIsValid(postid)) {
+        return res.status(500).json({
+          msg: "Post id is not valid",
+        });
       }
 
       //finds user
@@ -123,7 +125,7 @@ class PostController {
       )) as IUser;
 
       //check if post exists and prevents crash from null
-      if (!thisPost || thisPost === null)
+      if (!thisPost)
         res.status(404).json({
           msg: "No post found",
         });
@@ -152,7 +154,7 @@ class PostController {
       //if user role_id === 1 "USER" and this post was made by the same user
       if (
         user.role_id === USER_ROLES.USER &&
-        user._id.toString() === thisPostPoster._id.toString()
+        user._id.valueOf() === thisPostPoster._id.valueOf()
       ) {
         //delete post if tests are passed
         await Post.findByIdAndDelete(postid);
@@ -160,14 +162,14 @@ class PostController {
           msg: "Post deleted successfully",
         });
       }
-      //check if user is trying to do something he does not have permission to do
-      throw new Error(
-        "Access denied. You do not have permission to delete this post"
-      );
+      //Handles error without having to thrown and Error
+      return res.status(500).json({
+        msg: "Access denied. You do not have permission to delete this post or it doesn't exist",
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
-        msg: "Error",
+        msg: "Access denied. You do not have permission to delete this post or it doesn't exist",
       });
     }
   }
@@ -183,18 +185,20 @@ class PostController {
 
   async userPosts(req: Request, res: Response) {
     try {
-      const id = req.params.id;
+      const id = req.params.id as string;
 
-      const testId = idIsValid(id);
-      if (testId) {
-        return testId;
+      if (idIsValid(id)) {
+        return res.status(500).json({
+          msg: "Post id is not valid",
+        });
       }
+
       const posts = (await Post.find(
         { user: id },
         "name post -_id"
       )) as IPost[];
 
-      if (!posts || posts.length === 0) {
+      if (!posts.length) {
         return res.json({
           msg: "Post not found or wrong user id.",
         });

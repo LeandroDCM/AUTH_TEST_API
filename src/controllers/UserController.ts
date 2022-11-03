@@ -13,6 +13,7 @@ import USER_ROLES from "../utils/USER_ROLES";
 import validPassword from "../utils/validPassword";
 import mailgun from "mailgun-js";
 import "dotenv/config";
+import idIsValid from "../utils/postIdValidator";
 
 //setting up mailgun
 const DOMAIN = process.env.EMAIL_DOMAIN as string;
@@ -174,7 +175,7 @@ class UserController {
       )) as IUser;
 
       //check if users exists
-      if (!user || user === null) {
+      if (!user) {
         res.status(422).json({ User: "not found" });
         return;
       }
@@ -189,7 +190,7 @@ class UserController {
   async resetPassword(req: Request, res: Response) {
     const { username, newPassword, confirmNewPass } = req.body as IUserReset;
     //token came from recovery email
-    const { token } = req.params;
+    const { token } = req.params as { token: string };
 
     //checking password regex
     const isPasswordInvalid = validPassword(newPassword, confirmNewPass);
@@ -237,15 +238,23 @@ class UserController {
 
   async deleteUser(req: Request, res: Response) {
     try {
-      const userId = req.params.id;
+      const userId = req.params.id as string;
+
+      //check for valid user id and prevents crash
+      if (idIsValid(userId)) {
+        return res.status(500).json({
+          msg: "Post id is not valid",
+        });
+      }
+
       const userInformation = req.session;
       //find logged user
-      const [loggedUser] = (await User.find(
+      const loggedUser = (await User.findOne(
         {
           username: userInformation.username,
         },
         "-password -email"
-      )) as [{ role_id: number; username: string }];
+      )) as IUser;
 
       //find user to be deleted
       const user = (await User.findById(userId)) as IUser;
@@ -257,9 +266,11 @@ class UserController {
         return res.status(200).json({
           msg: "User deleted successfully",
         });
-      } else {
-        throw new Error("Error!");
       }
+      //handles "Error" without need to throw an Error
+      return res
+        .status(404)
+        .json({ msg: "User not found or no permission to delete" });
     } catch (error) {
       console.log(error);
       return res
@@ -270,13 +281,13 @@ class UserController {
 
   async activate(req: Request, res: Response) {
     try {
-      const token = req.params.token;
+      const token = req.params.token as string;
       //acts as a fake activate button
       const { activateButton } = req.body as { activateButton: string };
 
       //decoding jwt token
       const secret = process.env.SECRET as string;
-      const userInformation = jwt.verify(token, secret) as any;
+      const userInformation = jwt.verify(token, secret) as { username: string };
 
       //find user
       const user = (await User.findOne({
@@ -292,11 +303,13 @@ class UserController {
           msg: "User account activated!",
         });
       }
-      throw new Error("Something went wrong!");
+      return res.json({
+        msg: "Error! Invalid or expired token!",
+      });
     } catch (error) {
       console.log(error);
       return res.json({
-        msg: "Something went wrong!",
+        msg: "Error! Invalid or expired token!",
       });
     }
   }
