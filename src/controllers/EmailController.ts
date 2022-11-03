@@ -1,9 +1,9 @@
+import { IUser } from "./../interface/IUser";
 const { User } = require("../models/User");
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 import mailgun from "mailgun-js";
 import { Request, Response } from "express";
-import { UserInterface } from "../models/User";
 
 //setting up mailgun
 const DOMAIN = process.env.EMAIL_DOMAIN as string;
@@ -19,7 +19,7 @@ class EmailController {
     //check for user
     const user = (await User.findOne({
       email: email,
-    })) as UserInterface;
+    })) as IUser;
 
     //check for user
     if (!user) {

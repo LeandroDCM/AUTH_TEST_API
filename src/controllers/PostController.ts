@@ -1,4 +1,4 @@
-import { UserInterface } from "./../models/User";
+import { IUser } from "./../interface/IUser";
 const { Post } = require("../models/Post"); //error if import from
 const { User } = require("../models/User");
 import idIsValid from "../utils/postIdValidator";
@@ -22,7 +22,7 @@ class PostController {
     const user = (await User.findOne(
       { username: userInformation.username },
       "-password"
-    )) as UserInterface;
+    )) as IUser;
 
     if (!user) {
       return res.json({
@@ -69,7 +69,7 @@ class PostController {
         username: userInformation.username,
       },
       "-password"
-    )) as UserInterface;
+    )) as IUser;
 
     const post = (await Post.findById(postid)) as PostInterface;
 
@@ -109,7 +109,7 @@ class PostController {
       const user = (await User.findOne(
         { username: userInformation.username },
         "-password"
-      )) as UserInterface;
+      )) as IUser;
 
       //finds the post
       const thisPost = (await Post.findById(postid)) as PostInterface;

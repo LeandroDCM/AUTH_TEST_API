@@ -1,3 +1,4 @@
+import { IUser } from "./../interface/IUser";
 const { User } = require("../models/User"); //error if import from
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
@@ -5,7 +6,6 @@ import jwt from "jsonwebtoken";
 import { IUserLogin } from "../interface/IUserLogin";
 import { IUserRegister } from "../interface/IUserRegister";
 import { IUserReset } from "../interface/IUserReset";
-import { UserInterface } from "../models/User";
 import hasErrors from "../utils/paramsValidator";
 import USER_ROLES from "../utils/USER_ROLES";
 import validPassword from "../utils/validPassword";
@@ -52,7 +52,7 @@ class UserController {
     //check if user exists
     const userExists = (await User.findOne({
       $or: [{ username: username }, { email: email }],
-    })) as UserInterface;
+    })) as IUser;
 
     if (userExists) {
       return res.status(422).json({ msg: "Email or username already in use!" });
@@ -88,7 +88,7 @@ class UserController {
         name,
         email,
         password: passwordHash,
-      }) as UserInterface;
+      }) as IUser;
 
       await user.save();
 
@@ -124,7 +124,7 @@ class UserController {
     //check if user exists
     const user = (await User.findOne({
       $or: [{ username: login }, { email: login }],
-    })) as UserInterface;
+    })) as IUser;
 
     if (!user) {
       return res.status(404).json({ msg: "User not found!" });
@@ -169,7 +169,7 @@ class UserController {
       const user = (await User.find(
         { username: userInformation.username },
         "-password -_id -resetLink -email -role_id"
-      )) as UserInterface;
+      )) as IUser;
 
       //check if users exists
       if (!user || user === null) {
@@ -246,7 +246,7 @@ class UserController {
       )) as [{ role_id: number; username: string }];
 
       //find user to be deleted
-      const user = (await User.findById(userId)) as UserInterface;
+      const user = (await User.findById(userId)) as IUser;
 
       //if loggedUser role_id === 3 "ADMIN" delete anything he wants
       if (loggedUser.role_id === USER_ROLES.ADM) {
@@ -279,7 +279,7 @@ class UserController {
       //find user
       const user = (await User.findOne({
         username: userInformation.username,
-      })) as UserInterface;
+      })) as IUser;
 
       //checks if he clicks the fake button
       if (activateButton === "ACTIVATE") {
