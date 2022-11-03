@@ -1,10 +1,11 @@
 import { IUser } from "./../interface/IUser";
-const { Post } = require("../models/Post"); //error if import from
-const { User } = require("../models/User");
+import { Post } from "../models/Post";
+import { User } from "../models/User";
 import idIsValid from "../utils/postIdValidator";
 import { Request, Response } from "express";
 import { PostInterface } from "../models/Post";
 import USER_ROLES from "../utils/USER_ROLES";
+import { IPost } from "../interface/IPost";
 
 class PostController {
   async makePost(req: Request, res: Response) {
@@ -115,10 +116,10 @@ class PostController {
       const thisPost = (await Post.findById(postid)) as PostInterface;
 
       //finds the poster
-      const thisPostPoster = await User.findById(
+      const thisPostPoster = (await User.findById(
         thisPost.user,
         "-password -name -email"
-      );
+      )) as IUser;
 
       //check if post exists and prevents crash from null
       if (!thisPost || thisPost === null)
@@ -172,7 +173,7 @@ class PostController {
 
   async index(req: Request, res: Response) {
     try {
-      const posts = (await Post.find({}, "name post -_id")) as PostInterface;
+      const posts = (await Post.findOne({}, "name post -_id")) as PostInterface;
       res.json(posts);
     } catch (error) {
       res.status(500).send(error);
@@ -188,9 +189,9 @@ class PostController {
         return testId;
       }
       const posts = (await Post.find(
-        { user: id.toString() },
+        { user: id },
         "name post -_id"
-      )) as PostInterface;
+      )) as IPost[];
 
       if (!posts || posts.length === 0) {
         return res.json({

@@ -1,5 +1,7 @@
+import { UserInterface } from "./../models/User";
 import { IUser } from "./../interface/IUser";
-const { User } = require("../models/User"); //error if import from
+//const { User } = require("../models/User"); //error if import from
+import { User } from "../models/User";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
@@ -166,7 +168,7 @@ class UserController {
     try {
       //gets email from checkToken (req.session)
       const userInformation = req.session;
-      const user = (await User.find(
+      const user = (await User.findOne(
         { username: userInformation.username },
         "-password -_id -resetLink -email -role_id"
       )) as IUser;

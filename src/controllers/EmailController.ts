@@ -1,5 +1,5 @@
 import { IUser } from "./../interface/IUser";
-const { User } = require("../models/User");
+import { User } from "../models/User";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 import mailgun from "mailgun-js";
