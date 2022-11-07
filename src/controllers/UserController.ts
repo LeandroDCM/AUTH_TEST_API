@@ -26,12 +26,8 @@ class UserController {
       "confirmPassword",
     ];
     const errors = hasErrors(requestFields, req.body);
-    if (errors.length === 1) {
-      //if one error exist
-      return res
-        .status(422) //join and return them
-        .json({ msg: `Field: ${errors[0]} is required` });
-    } else if (errors.length > 1) {
+
+    if (errors.length) {
       //if errors exist
       return res
         .status(422) //join and return them
@@ -100,11 +96,7 @@ class UserController {
     //validation
     const requestFields = ["login", "password"];
     const errors = hasErrors(requestFields, req.body);
-    if (errors.length === 1) {
-      return res.status(422).json({
-        msg: `Field: ${errors[0]} is required!`,
-      });
-    } else if (errors.length > 1) {
+    if (errors.length) {
       return res.status(422).json({
         msg: `Fields: ${errors.join(",")} are required!`,
       });
