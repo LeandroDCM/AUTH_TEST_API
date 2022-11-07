@@ -25,12 +25,6 @@ class PostController {
       "-password"
     )) as IUser;
 
-    if (!user) {
-      return res.json({
-        msg: "User not found",
-      });
-    }
-
     try {
       //if the user is admin or moderator he can post without being activated
       if (user.is_activated || user.role_id > Roles.USER) {
