@@ -1,6 +1,4 @@
-import { UserInterface } from "./../models/User";
 import { IUser } from "./../interface/IUser";
-//const { User } = require("../models/User"); //error if import from
 import { User } from "../models/User";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
@@ -11,16 +9,9 @@ import { IUserReset } from "../interface/IUserReset";
 import hasErrors from "../utils/paramsValidator";
 import Roles from "../utils/USER_ROLES";
 import validPassword from "../utils/validPassword";
-import mailgun from "mailgun-js";
 import "dotenv/config";
 import idIsValid from "../utils/postIdValidator";
-
-//setting up mailgun
-const DOMAIN = process.env.EMAIL_DOMAIN as string;
-const mg = mailgun({
-  apiKey: process.env.EMAIL_API_KEY as string,
-  domain: DOMAIN,
-});
+import { mailgunCli } from "../utils/MailgunClient";
 
 class UserController {
   async register(req: Request, res: Response) {
@@ -71,19 +62,14 @@ class UserController {
 
       const token = jwt.sign({ username: username }, secret);
 
-      //Email data
-      const data = {
-        from: "noreply@email.com",
-        to: `${email}`,
-        subject: "Activate Account",
-        text: `<a href="${process.env.CLIENT_URL}/auth/activate/${token}">Activation Link</a>`,
-        html: `<a href="${process.env.CLIENT_URL}/auth/activate/${token}">Activation Link</a>`,
-      };
-
       //send email
-      mg.messages().send(data, function (error, body) {
-        console.log(body);
-      });
+      mailgunCli.send(
+        "noreply@email.com",
+        `${email}`,
+        "Activate Account",
+        `<a href="${process.env.CLIENT_URL}/auth/activate/${token}">Activation Link</a>`,
+        `<a href="${process.env.CLIENT_URL}/auth/activate/${token}">Activation Link</a>`
+      );
 
       //create user
       const user = new User({

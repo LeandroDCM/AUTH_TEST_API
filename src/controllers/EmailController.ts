@@ -2,15 +2,8 @@ import { IUser } from "./../interface/IUser";
 import { User } from "../models/User";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
-import mailgun from "mailgun-js";
 import { Request, Response } from "express";
-
-//setting up mailgun
-const DOMAIN = process.env.EMAIL_DOMAIN as string;
-const mg = mailgun({
-  apiKey: process.env.EMAIL_API_KEY as string,
-  domain: DOMAIN,
-});
+import { mailgunCli } from "../utils/MailgunClient";
 
 class EmailController {
   async recover(req: Request, res: Response) {
@@ -38,20 +31,15 @@ class EmailController {
       secret
     );
 
-    //Email data
-    const data = {
-      from: "Excited User <me@samples.mailgun.org>",
-      to: `${email}`,
-      subject: "Password Change",
-      text: `<a href="${process.env.CLIENT_URL}/auth/reset/${token}">Password Change Link</a>`,
-      html: `<a href="${process.env.CLIENT_URL}/auth/reset/${token}">Password Change</a>`,
-    };
-
     try {
       //send email
-      mg.messages().send(data, function (error, body) {
-        console.log(body);
-      });
+      mailgunCli.send(
+        "noreply@email.com",
+        `${email}`,
+        "Password Change",
+        `<a href="${process.env.CLIENT_URL}/auth/reset/${token}">Password Change Link</a>`,
+        `<a href="${process.env.CLIENT_URL}/auth/reset/${token}">Password Change Link</a>`
+      );
       res.json({
         msg: "Email sent with your information!",
       });
