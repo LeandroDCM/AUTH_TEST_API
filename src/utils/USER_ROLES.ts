@@ -1,7 +1,7 @@
-const USER_ROLES = {
-  ADM: 3 as number,
-  MOD: 2 as number,
-  USER: 1 as number,
-};
+enum Role {
+  ADM = 3,
+  MOD = 2,
+  USER = 1,
+}
 
-export default USER_ROLES;
+export default Role;

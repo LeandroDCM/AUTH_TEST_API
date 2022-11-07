@@ -9,7 +9,7 @@ import { IUserLogin } from "../interface/IUserLogin";
 import { IUserRegister } from "../interface/IUserRegister";
 import { IUserReset } from "../interface/IUserReset";
 import hasErrors from "../utils/paramsValidator";
-import USER_ROLES from "../utils/USER_ROLES";
+import Roles from "../utils/USER_ROLES";
 import validPassword from "../utils/validPassword";
 import mailgun from "mailgun-js";
 import "dotenv/config";
@@ -260,7 +260,7 @@ class UserController {
       const user = (await User.findById(userId)) as IUser;
 
       //if loggedUser role_id === 3 "ADMIN" delete anything he wants
-      if (loggedUser.role_id === USER_ROLES.ADM) {
+      if (loggedUser.role_id === Roles.ADM) {
         //delete post if tests are passed
         await user.deleteOne({ username: user.username });
         return res.status(200).json({

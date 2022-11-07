@@ -3,7 +3,7 @@ import { Post } from "../models/Post";
 import { User } from "../models/User";
 import idIsValid from "../utils/postIdValidator";
 import { Request, Response } from "express";
-import USER_ROLES from "../utils/USER_ROLES";
+import Roles from "../utils/USER_ROLES";
 import { IPost } from "../interface/IPost";
 
 class PostController {
@@ -32,7 +32,7 @@ class PostController {
 
     try {
       //if the user is admin or moderator he can post without being activated
-      if (user.is_activated || user.role_id > USER_ROLES.USER) {
+      if (user.is_activated || user.role_id > Roles.USER) {
         const newPost = new Post({
           name: user.name,
           user: user.id,
@@ -131,7 +131,7 @@ class PostController {
         });
 
       //if user role_id === 3 "ADMIN" delete anything he wants
-      if (user.role_id === USER_ROLES.ADM) {
+      if (user.role_id === Roles.ADM) {
         //delete post if tests are passed
         await Post.findByIdAndDelete(postid);
         return res.status(200).json({
@@ -140,10 +140,7 @@ class PostController {
       }
 
       //if user role_id === 2 "MODERATOR" delete anything but ADMIN posts
-      if (
-        user.role_id === USER_ROLES.MOD &&
-        thisPostPoster.role_id !== USER_ROLES.ADM
-      ) {
+      if (user.role_id === Roles.MOD && thisPostPoster.role_id !== Roles.ADM) {
         //delete post if tests are passed
         await Post.findByIdAndDelete(postid);
         return res.status(200).json({
@@ -153,7 +150,7 @@ class PostController {
 
       //if user role_id === 1 "USER" and this post was made by the same user
       if (
-        user.role_id === USER_ROLES.USER &&
+        user.role_id === Roles.USER &&
         user._id.valueOf() === thisPostPoster._id.valueOf()
       ) {
         //delete post if tests are passed
