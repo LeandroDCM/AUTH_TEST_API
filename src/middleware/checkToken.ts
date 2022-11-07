@@ -26,7 +26,7 @@ function checkToken(req: Request, res: Response, next: NextFunction) {
     next();
   } catch (error) {
     console.log(error);
-    res.status(400).json({ msg: "Invalid Token" });
+    res.status(403).json({ msg: "Invalid Token" });
   }
 }
 

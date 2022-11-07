@@ -123,7 +123,7 @@ class UserController {
     const checkPassword = await bcrypt.compare(password, user.password);
 
     if (!checkPassword) {
-      return res.status(422).json({ msg: "Invalid password!" });
+      return res.status(401).json({ msg: "Invalid username or password!" });
     }
 
     try {
@@ -198,8 +198,8 @@ class UserController {
       //compares username grabbed from inside the email of the user
       //with the username provided by the user in the time of password changing
       if (username !== userInformation.username) {
-        return res.json({
-          Error: "User not found!",
+        return res.status(401).json({
+          Error: "Invalid username!",
         });
       }
 
@@ -216,7 +216,7 @@ class UserController {
       });
     } catch (error) {
       console.log(error);
-      return res.json({
+      return res.status(403).json({
         msg: "Invalid token",
       });
     }
@@ -228,7 +228,7 @@ class UserController {
 
       //check for valid user id and prevents crash
       if (idIsValid(userId)) {
-        return res.status(500).json({
+        return res.status(400).json({
           msg: "Post id is not valid",
         });
       }
@@ -285,16 +285,16 @@ class UserController {
         await User.findByIdAndUpdate(user._id, {
           is_activated: true,
         });
-        return res.json({
+        return res.status(200).json({
           msg: "User account activated!",
         });
       }
-      return res.json({
+      return res.status(403).json({
         msg: "Error! Invalid or expired token!",
       });
     } catch (error) {
       console.log(error);
-      return res.json({
+      return res.status(403).json({
         msg: "Error! Invalid or expired token!",
       });
     }

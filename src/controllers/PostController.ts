@@ -42,13 +42,13 @@ class PostController {
         await newPost.save();
         return res.json(newPost.post);
       } else {
-        return res.json({
+        return res.status(403).json({
           msg: "Account not activated, please check your email.",
         });
       }
     } catch (error) {
       console.log(error);
-      return res.json({
+      return res.status(403).json({
         msg: "Account not activated, please check your email.",
       });
     }
@@ -61,7 +61,7 @@ class PostController {
 
     //check for valid post id and prevents crash
     if (idIsValid(postid)) {
-      return res.status(500).json({
+      return res.status(400).json({
         msg: "Post id is not valid",
       });
     }
@@ -78,7 +78,7 @@ class PostController {
 
     //check if user exists
     if (!user)
-      return res.status(400).json({
+      return res.status(422).json({
         msg: "User not found",
       });
 
@@ -93,7 +93,9 @@ class PostController {
       await Post.findByIdAndUpdate(postid, newPost);
       return res.json(newPost);
     } else {
-      return res.json({ Error: "Cannot update another users post." });
+      return res
+        .status(403)
+        .json({ Error: "Cannot update another users post." });
     }
   }
 
@@ -104,7 +106,7 @@ class PostController {
 
       //check for valid post id and prevents crash
       if (idIsValid(postid)) {
-        return res.status(500).json({
+        return res.status(400).json({
           msg: "Post id is not valid",
         });
       }
@@ -126,7 +128,7 @@ class PostController {
 
       //check if post exists and prevents crash from null
       if (!thisPost)
-        res.status(404).json({
+        res.status(422).json({
           msg: "No post found",
         });
 
@@ -160,12 +162,12 @@ class PostController {
         });
       }
       //Handles error without having to thrown and Error
-      return res.status(500).json({
+      return res.status(403).json({
         msg: "Access denied. You do not have permission to delete this post or it doesn't exist",
       });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({
+      return res.status(403).json({
         msg: "Access denied. You do not have permission to delete this post or it doesn't exist",
       });
     }
@@ -176,7 +178,7 @@ class PostController {
       const posts = (await Post.findOne({}, "name post -_id")) as IPost;
       res.json(posts);
     } catch (error) {
-      res.status(500).send(error);
+      res.status(502).send(error);
     }
   }
 
@@ -185,7 +187,7 @@ class PostController {
       const id = req.params.id as string;
 
       if (idIsValid(id)) {
-        return res.status(500).json({
+        return res.status(400).json({
           msg: "Post id is not valid",
         });
       }
@@ -196,14 +198,14 @@ class PostController {
       )) as IPost[];
 
       if (!posts.length) {
-        return res.json({
+        return res.status(404).json({
           msg: "Post not found or wrong user id.",
         });
       }
 
       res.json(posts);
     } catch (error) {
-      res.status(500).json({
+      res.status(400).json({
         msg: "Error with user id",
       });
     }
