@@ -5,6 +5,7 @@ import idIsValid from "../utils/postIdValidator";
 import { Request, Response } from "express";
 import Roles from "../utils/USER_ROLES";
 import { IPost } from "../interface/IPost";
+import { canDeletePost } from "../utils/canDeletePost";
 
 class PostController {
   async makePost(req: Request, res: Response) {
@@ -132,35 +133,14 @@ class PostController {
           msg: "No post found",
         });
 
-      //if user role_id === 3 "ADMIN" delete anything he wants
-      if (user.role_id === Roles.ADM) {
-        //delete post if tests are passed
+      //check if its is a USER/MOD/ADMIN trying to delete the post
+      if (await canDeletePost(user, thisPost)) {
         await Post.findByIdAndDelete(postid);
         return res.status(200).json({
           msg: "Post deleted successfully",
         });
       }
 
-      //if user role_id === 2 "MODERATOR" delete anything but ADMIN posts
-      if (user.role_id === Roles.MOD && thisPostPoster.role_id !== Roles.ADM) {
-        //delete post if tests are passed
-        await Post.findByIdAndDelete(postid);
-        return res.status(200).json({
-          msg: "Post deleted successfully",
-        });
-      }
-
-      //if user role_id === 1 "USER" and this post was made by the same user
-      if (
-        user.role_id === Roles.USER &&
-        user._id.valueOf() === thisPostPoster._id.valueOf()
-      ) {
-        //delete post if tests are passed
-        await Post.findByIdAndDelete(postid);
-        return res.status(200).json({
-          msg: "Post deleted successfully",
-        });
-      }
       //Handles error without having to thrown and Error
       return res.status(403).json({
         msg: "Access denied. You do not have permission to delete this post or it doesn't exist",
